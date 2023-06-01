@@ -12,12 +12,17 @@ import { LocalAuthGuard } from './gaurds/local-auth.guard';
   imports: [
     PassportModule,
     UserModule,
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get('JWT_KEY'),
-        signOptions: { expiresIn: config.get('JWT_ACCESS_TOKEN_EXP_IN_SEC') },
-      }),
+    // JwtModule.registerAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (config: ConfigService) => ({
+    //     secret: config.get('JWT_KEY'),
+    //     signOptions: { expiresIn: config.get('JWT_ACCESS_TOKEN_EXP_IN_SEC') },
+    //   }),
+    // }),
+
+    JwtModule.register({
+      secret: 'dev',
+      signOptions: { expiresIn: '3600' },
     }),
   ],
   controllers: [AuthController],

@@ -1,7 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserService } from '../../users/services/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { Hash } from 'crypto';
+import { compare } from 'bcrypt';
+import { RegisterInput } from '../dtos/register-input.dto';
+import { UserOutput } from '../dtos/user-output.dto';
+import { AuthTokenOutput } from '../dtos/auth-token-output.dto';
 
 @Injectable()
 export class AuthService {
@@ -10,18 +17,21 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
+  async validateUser(username: string, password: string): Promise<UserOutput> {
     const user = await this.userService.findOne(username);
 
-    if (user && user.password === password) {
-      const { password, ...result } = user;
-      return result;
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
-    return null;
+    const match = await compare(password, user.password);
+    if (!match)
+      throw new UnauthorizedException('Incorrect password. Please try again.');
+
+    return user;
   }
 
-  async login(user: any): Promise<any> {
+  async getToken(user: any): Promise<AuthTokenOutput> {
     const payload = {
       sub: user.id,
       username: user.username,
@@ -30,5 +40,10 @@ export class AuthService {
     return {
       accessToken: this.jwtService.sign(payload),
     };
+  }
+
+  async register(input: RegisterInput): Promise<UserOutput> {
+    console.log(input);
+    return await this.userService.createUser(input);
   }
 }
