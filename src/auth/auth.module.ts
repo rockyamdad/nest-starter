@@ -7,6 +7,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { LocalAuthGuard } from './gaurds/local-auth.guard';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -22,10 +23,10 @@ import { LocalAuthGuard } from './gaurds/local-auth.guard';
 
     JwtModule.register({
       secret: 'dev',
-      signOptions: { expiresIn: '3600' },
+      signOptions: { expiresIn: '36000' },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, LocalAuthGuard],
+  providers: [AuthService, LocalStrategy, LocalAuthGuard, JwtStrategy],
 })
 export class AuthModule {}
